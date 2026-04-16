@@ -9,7 +9,7 @@ import {sendEmail} from "../utils/send-email.js";
 // ========================
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, email, password, gender } = req.body;
 
     // check if user already exists
     const existingUser = await User.findOne({ email });
@@ -29,9 +29,10 @@ export const register = async (req, res) => {
 
     // create user
     const newUser = new User({
-      username,
+      name,
       email,
       password: hashedPassword,
+      gender, // ✅ ADD THIS
       verificationToken: token,
       isVerified: false,
     });
@@ -41,21 +42,56 @@ export const register = async (req, res) => {
     // verification link
     const verifyLink = `http://localhost:8000/api/auth/verify/${token}`;
 
+    // email HTML
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+        <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:10px;">
+
+          <h2 style="color:#333;">Welcome, ${name} 👋</h2>
+
+          <p style="color:#555; font-size:16px;">
+            Thanks for registering. Please verify your email to activate your account.
+          </p>
+
+          <p style="color:#666;">
+            Gender selected: <b>${gender}</b>
+          </p>
+
+          <div style="text-align:center; margin:30px 0;">
+            <a href="${verifyLink}"
+               style="
+                 background:#4f46e5;
+                 color:white;
+                 padding:12px 25px;
+                 text-decoration:none;
+                 border-radius:6px;
+                 font-size:16px;
+                 display:inline-block;
+               ">
+              Verify Account
+            </a>
+          </div>
+
+          <p style="font-size:12px; color:#999;">
+            If button not working, copy link below:
+          </p>
+
+          <p style="font-size:12px; word-break:break-all;">
+            ${verifyLink}
+          </p>
+
+        </div>
+      </div>
+    `;
+
     // send email
-    await sendEmail(
-      email,
-      "Verify your account",
-      `
-      <h2>Welcome ${username}</h2>
-      <p>Click below to verify your account</p>
-      <a href="${verifyLink}">Verify Account</a>
-      `
-    );
+    await sendEmail(email, "Verify your account", emailHtml);
 
     return res.status(201).json({
       success: true,
       message: "User registered successfully. Please verify your email.",
     });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -64,7 +100,6 @@ export const register = async (req, res) => {
     });
   }
 };
-
 
 // ========================
 // VERIFY EMAIL
@@ -149,7 +184,7 @@ export const login = async (req, res) => {
       token,
       user: {
         id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email,
       },
     });
