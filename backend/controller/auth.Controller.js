@@ -9,91 +9,94 @@ import {sendEmail} from "../utils/send-email.js";
 // ========================
 export const register = async (req, res) => {
   try {
-    const { name, email, password, gender } = req.body;
+    const { name, username, email, password, gender } = req.body;
 
-    // check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // ========================
+    // VALIDATION
+    // ========================
+    if (!name || !username || !email || !password || !gender) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "All fields are required",
       });
     }
 
-    // hash password
+    // ========================
+    // CHECK EMAIL EXISTS
+    // ========================
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists",
+      });
+    }
+
+    // ========================
+    // CHECK USERNAME EXISTS
+    // ========================
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({
+        success: false,
+        message: "Username already taken",
+      });
+    }
+
+    // ========================
+    // HASH PASSWORD
+    // ========================
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // create verification token
+    // ========================
+    // VERIFICATION TOKEN
+    // ========================
     const token = crypto.randomBytes(32).toString("hex");
 
-    // create user
+    // ========================
+    // CREATE USER
+    // ========================
     const newUser = new User({
       name,
+      username,
       email,
       password: hashedPassword,
-      gender, // ✅ ADD THIS
+      gender,
       verificationToken: token,
       isVerified: false,
     });
 
     await newUser.save();
 
-    // verification link
+    // ========================
+    // VERIFY LINK
+    // ========================
     const verifyLink = `http://localhost:8000/api/auth/verify/${token}`;
 
-    // email HTML
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
-        <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:10px;">
+      <div style="font-family: Arial; padding:20px;">
+        <h2>Welcome ${name} 👋</h2>
+        <p>Verify your account:</p>
 
-          <h2 style="color:#333;">Welcome, ${name} 👋</h2>
+        <a href="${verifyLink}" style="padding:10px 20px; background:#4f46e5; color:white; text-decoration:none;">
+          Verify Account
+        </a>
 
-          <p style="color:#555; font-size:16px;">
-            Thanks for registering. Please verify your email to activate your account.
-          </p>
-
-          <p style="color:#666;">
-            Gender selected: <b>${gender}</b>
-          </p>
-
-          <div style="text-align:center; margin:30px 0;">
-            <a href="${verifyLink}"
-               style="
-                 background:#4f46e5;
-                 color:white;
-                 padding:12px 25px;
-                 text-decoration:none;
-                 border-radius:6px;
-                 font-size:16px;
-                 display:inline-block;
-               ">
-              Verify Account
-            </a>
-          </div>
-
-          <p style="font-size:12px; color:#999;">
-            If button not working, copy link below:
-          </p>
-
-          <p style="font-size:12px; word-break:break-all;">
-            ${verifyLink}
-          </p>
-
-        </div>
+        <p>${verifyLink}</p>
       </div>
     `;
 
-    // send email
     await sendEmail(email, "Verify your account", emailHtml);
 
     return res.status(201).json({
       success: true,
-      message: "User registered successfully. Please verify your email.",
+      message: "User registered. Please verify your email.",
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("REGISTER ERROR:", err);
+
     return res.status(500).json({
       success: false,
       message: "Server error",
