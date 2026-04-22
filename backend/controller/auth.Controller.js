@@ -114,10 +114,7 @@ export const verifyEmail = async (req, res) => {
     const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired token",
-      });
+      return res.status(400).send("Invalid or expired token");
     }
 
     user.isVerified = true;
@@ -125,21 +122,15 @@ export const verifyEmail = async (req, res) => {
 
     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Email verified successfully",
-    });
+    // ✅ REDIRECT TO FRONTEND (IMPORTANT)
+    return res.redirect("http://localhost:5173/login");
+
   } catch (err) {
-  console.log("REGISTER ERROR:", err);
+    console.log("VERIFY ERROR:", err);
 
-  return res.status(500).json({
-    success: false,
-    message: "Server error",
-    error: err.message,
-  });
-}
+    return res.status(500).send("Server error");
+  }
 };
-
 
 // ========================
 // LOGIN

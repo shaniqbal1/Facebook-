@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthPage from "./pages/authPage.jsx";
+import Login from "./pages/login.jsx";
+import Register from "./pages/register.jsx";
+
 
 function App() {
   return (
@@ -10,6 +13,8 @@ function App() {
 
         {/* Example dashboard route (after login) */}
         <Route path="/dashboard" element={<h1>Dashboard</h1>} />
+        <Route path="/login" element={<Login />} />  {/* ✅ MUST EXIST */}
+        <Route path="/Register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );
