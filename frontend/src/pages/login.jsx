@@ -58,7 +58,7 @@ const Login = ({ switchToRegister }) => {
               placeholder=" "
               autoComplete="email"
               onChange={handleChange}
-              className="peer w-full px-4 pt-[22px] pb-[6px] border border-[#dddfe2] rounded-[6px] text-[17px] text-[#1c1e21] focus:outline-none focus:border-[#1877f2] focus:shadow-[0_0_0_2px_#e7f3ff] transition-all placeholder-transparent"
+              className="peer w-full px-4 pt-[22px] pb-[6px] border border-[#dddfe2] rounded-[6px] text-[17px] text-[#1c1e21] focus:outline-none focus:border-[#1877f2] focus:shadow-[0_0_0_3px_rgba(24,119,242,0.3),0_0_0_2px_#e7f3ff] transition-all placeholder-transparent"
             />
             <label
               htmlFor="email"
@@ -79,7 +79,7 @@ const Login = ({ switchToRegister }) => {
               placeholder=" "
               autoComplete="current-password"
               onChange={handleChange}
-              className="peer w-full px-4 pt-[22px] pb-[6px] pr-[64px] border border-[#dddfe2] rounded-[6px] text-[17px] text-[#1c1e21] focus:outline-none focus:border-[#1877f2] focus:shadow-[0_0_0_2px_#e7f3ff] transition-all placeholder-transparent"
+              className="peer w-full px-4 pt-[22px] pb-[6px] pr-[64px] border border-[#dddfe2] rounded-[6px] text-[17px] text-[#1c1e21] focus:outline-none focus:border-[#1877f2] focus:shadow-[0_0_0_3px_rgba(24,119,242,0.3),0_0_0_2px_#e7f3ff] transition-all placeholder-transparent"
             />
             <label
               htmlFor="password"
@@ -92,9 +92,9 @@ const Login = ({ switchToRegister }) => {
             <button
               type="button"
               onClick={() => setShowPw((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1877f2] text-[13px] font-semibold"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1877f2] text-[13px] font-semibold hover:text-[#166fe5] transition-colors"
             >
-              {showPw ? "Hide" : "Show"}
+              {showPw ? "👁️" : "🙈"}
             </button>
           </div>
 
@@ -102,7 +102,9 @@ const Login = ({ switchToRegister }) => {
           <motion.button
             type="submit"
             whileTap={{ scale: 0.97 }}
-            className={`w-full text-white text-[20px] font-bold py-3 rounded-[6px] transition-colors ${
+            animate={success ? { scale: [1, 1.05, 1], boxShadow: ["0 0 0 0 rgba(66,183,42,0.7)", "0 0 0 10px rgba(66,183,42,0)", "0 0 0 0 rgba(66,183,42,0)"] } : {}}
+            transition={success ? { duration: 1.5, repeat: Infinity } : {}}
+            className={`w-full text-white text-[20px] font-bold py-3 rounded-[6px] transition-all ${
               success
                 ? "bg-[#42b72a]"
                 : "bg-[#1877f2] hover:bg-[#166fe5]"
