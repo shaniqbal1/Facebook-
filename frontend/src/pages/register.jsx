@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import GoogleButton from "../component/googleauth.jsx"; // ✅ IMPORT
 
 const Register = ({ switchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -15,21 +16,17 @@ const Register = ({ switchToLogin }) => {
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ─── INPUT HANDLER ─── */
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
-
     setError("");
     setSuccessMsg("");
   };
 
-  /* ─── REGISTER ─── */
   const handleRegister = async (e) => {
     e.preventDefault();
-
     setError("");
     setSuccessMsg("");
 
@@ -48,13 +45,12 @@ const Register = ({ switchToLogin }) => {
 
     try {
       await axios.post(
-        "http://localhost:8000/api/auth/register",
+        "http://localhost:8000/api/v1/auth/register", // ✅ FIXED URL
         formData
       );
 
       setSuccessMsg("User registered successfully. Please verify your email.");
 
-      // reset form
       setFormData({
         name: "",
         username: "",
@@ -63,28 +59,34 @@ const Register = ({ switchToLogin }) => {
         gender: ""
       });
 
-      setLoading(false);
     } catch (err) {
-      setLoading(false);
       setError(err.response?.data?.message || "Something went wrong");
     }
+
+    setLoading(false);
   };
 
-  /* ─── AUTO HIDE SUCCESS ─── */
   useEffect(() => {
     if (!successMsg) return;
-
-    const timer = setTimeout(() => {
-      setSuccessMsg("");
-    }, 5000);
-
+    const timer = setTimeout(() => setSuccessMsg(""), 5000);
     return () => clearTimeout(timer);
   }, [successMsg]);
 
   return (
-    <div className="bg-white rounded-lg w-[396px] shadow-lg">
+    <div className="bg-white rounded-lg w-[396px] shadow-lg p-4 space-y-3">
 
-      <form onSubmit={handleRegister} className="p-4 space-y-3">
+      {/* 🔥 GOOGLE BUTTON */}
+      <GoogleButton />
+
+      {/* divider */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-[1px] bg-gray-300"></div>
+        <span className="text-gray-400 text-sm">OR</span>
+        <div className="flex-1 h-[1px] bg-gray-300"></div>
+      </div>
+
+      {/* FORM */}
+      <form onSubmit={handleRegister} className="space-y-3">
 
         {/* success */}
         {successMsg && (
@@ -137,7 +139,6 @@ const Register = ({ switchToLogin }) => {
             onChange={handleChange}
             className="w-full px-4 py-3 border rounded outline-none"
           />
-
           <button
             type="button"
             onClick={() => setShowPw(!showPw)}
@@ -147,66 +148,29 @@ const Register = ({ switchToLogin }) => {
           </button>
         </div>
 
-        {/* ─── FIXED GENDER UI (MODERN COLORS) ─── */}
+        {/* gender */}
         <div className="grid grid-cols-3 gap-2 text-sm">
-
-          {/* Male */}
-          <label className={`cursor-pointer px-3 py-2 rounded-lg text-center border transition-all
-            ${
-              formData.gender === "male"
-                ? "bg-blue-600 text-white border-blue-400 shadow-md"
-                : "bg-white/5 text-gray-600 border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            <input
-              type="radio"
-              name="gender"
-              value="male"
-              checked={formData.gender === "male"}
-              onChange={handleChange}
-              className="hidden"
-            />
-            Male
-          </label>
-
-          {/* Female */}
-          <label className={`cursor-pointer px-3 py-2 rounded-lg text-center border transition-all
-            ${
-              formData.gender === "female"
-                ? "bg-pink-500 text-white border-pink-400 shadow-md"
-                : "bg-white/5 text-gray-600 border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            <input
-              type="radio"
-              name="gender"
-              value="female"
-              checked={formData.gender === "female"}
-              onChange={handleChange}
-              className="hidden"
-            />
-            Female
-          </label>
-
-          {/* Other */}
-          <label className={`cursor-pointer px-3 py-2 rounded-lg text-center border transition-all
-            ${
-              formData.gender === "other"
-                ? "bg-violet-500 text-white border-violet-400 shadow-md"
-                : "bg-white/5 text-gray-600 border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            <input
-              type="radio"
-              name="gender"
-              value="other"
-              checked={formData.gender === "other"}
-              onChange={handleChange}
-              className="hidden"
-            />
-            Other
-          </label>
-
+          {["male", "female", "other"].map((g) => (
+            <label
+              key={g}
+              className={`cursor-pointer px-3 py-2 rounded-lg text-center border transition-all
+                ${
+                  formData.gender === g
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "text-gray-600 border-gray-200 hover:bg-gray-100"
+                }`}
+            >
+              <input
+                type="radio"
+                name="gender"
+                value={g}
+                checked={formData.gender === g}
+                onChange={handleChange}
+                className="hidden"
+              />
+              {g.charAt(0).toUpperCase() + g.slice(1)}
+            </label>
+          ))}
         </div>
 
         {/* submit */}
@@ -216,7 +180,7 @@ const Register = ({ switchToLogin }) => {
       </form>
 
       {/* switch */}
-      <div className="text-center py-4">
+      <div className="text-center pt-2">
         <button
           onClick={switchToLogin}
           className="text-blue-500 text-sm"
