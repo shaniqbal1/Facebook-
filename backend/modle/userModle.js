@@ -35,20 +35,20 @@ const userSchema = new mongoose.Schema(
       enum: ["male", "female", "other"],
       required: true,
     },
-    bio: {
-      type: String,
-      default: "",
-      maxlength: 150,
-    },
+    // bio: {
+    //   type: String,
+    //   default: "",
+    //   maxlength: 150,
+    // },
 
-    profileImage: {
-      type: String,
-      default: "",
-    },
+    // profileImage: {
+    //   type: String,
+    //   default: "",
+    // },
 
-    dateOfBirth: {
-      type: Date,
-    },
+    // dateOfBirth: {
+    //   type: Date,
+    // },
 
     isVerified: {
       type: Boolean,

@@ -1,22 +1,22 @@
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization;
+// const authMiddleware = (req, res, next) => {
+//   const token = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ message: "No token, access denied" });
-  }
+//   if (!token) {
+//     return res.status(401).json({ message: "No token, access denied" });
+//   }
 
-  try {
-    const actualToken = token.split(" ")[1];
+//   try {
+//     const actualToken = token.split(" ")[1];
 
-    const decoded = jwt.verify(actualToken, process.env.JWT_SECRET);
+//     const decoded = jwt.verify(actualToken, process.env.JWT_SECRET);
 
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-};
+//     req.user = decoded;
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ message: "Invalid token" });
+//   }
+// };
 
-export default authMiddleware;
+// export default authMiddleware;
